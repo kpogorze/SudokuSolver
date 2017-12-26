@@ -17,12 +17,16 @@ class SudokuSolver(object):
         self.temperature = init_temp
         self.cooldown = cooldown
         self.iterations = iterations
-        self.puzzle = Sudoku(self.load_data_from_file(puzzle_filename))
-        self.simulated_annealing()
+        self.current_puzzle = Sudoku(self.load_data_from_file(puzzle_filename))
+        self.display_solution()
+        # self.simulated_annealing()
 
     def load_data_from_file(self, puzzle_filename):
         """Loads puzzle data from file"""
-        pass
+        with open(puzzle_filename) as f:
+            data = np.fromfile(f, dtype=int, sep=" ")
+        data = np.reshape(data, (9, 9))
+        return data
 
     def simulated_annealing(self):
         """Tries to solve the sudoku puzzle with simulated annealing process
@@ -41,12 +45,18 @@ class SudokuSolver(object):
 
     def display_solution(self):
         """Displays current solution"""
-        pass
+        for rows in self.current_puzzle.data:
+            for elem in rows:
+                print(elem, end=" ")
+            print()
 
 
 if __name__ == "__main__":
+    SudokuSolver("../resources/puzzle1.txt")
+    """
     if len(sys.argv) > 1:
         SudokuSolver(sys.argv[1])
     else:
         filename = input("Podaj nazwe pliku")
         SudokuSolver(filename)
+        """
