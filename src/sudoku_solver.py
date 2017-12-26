@@ -7,10 +7,12 @@ class SudokuSolver(object):
     def __init__(self, puzzle_filename, init_temp=1, cooldown=.9999, iterations=100000):
         """SudokuSolver constructor
 
-        filename    - path to file with sudoku puzzle
-        init_temp   - base temperature
-        cooldown    - temperature reduction coefficient
-        iterations  - maximum number of simulated annealing loop iterations
+        Attributes:
+            filename    - path to file with sudoku puzzle
+            init_temp   - base temperature
+            cooldown    - temperature reduction coefficient
+            iterations  - maximum number of simulated annealing algorithm
+                          iterations
         """
         self.temperature = init_temp
         self.cooldown = cooldown

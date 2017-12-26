@@ -2,7 +2,8 @@ class Sudoku(object):
     def __init__(self, data):
         """Sudoku constructor
 
-        data    - 9x9 array with numbers from sudoku puzzle, 0 means empty squares
+        Attributes
+            data    - 9x9 array with numbers from sudoku puzzle, 0 means empty squares
         """
         self.data = data
         self.initial_numbers = []
