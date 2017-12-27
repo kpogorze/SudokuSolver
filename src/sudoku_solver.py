@@ -22,9 +22,11 @@ class SudokuSolver(object):
         self.current_puzzle.generate_initial_solution()
         print()
         self.display_solution()
+        print(self.evaluate_solution())
         self.current_puzzle.generate_neighbor_solution()
         print()
         self.display_solution()
+        print(self.evaluate_solution())
         # self.simulated_annealing()
 
     def load_data_from_file(self, puzzle_filename):
@@ -33,6 +35,33 @@ class SudokuSolver(object):
             data = np.fromfile(f, dtype=int, sep=" ")
         data = np.reshape(data, (9, 9))
         return data
+
+    def evaluate_solution(self):
+        """Calculates and returns value of fitness function for current solution
+
+        Returned value tells how far is current solution from a correct one by
+        counting digit repetitions in each column and 3x3 subsquares
+        (rows are omitted because of solution generation rules)
+        """
+        score = 0
+        digits = set(range(1, 10))
+        for i in range(9):
+            col = [row[i] for row in self.current_puzzle.data]
+            score += len(digits - set(col))
+
+            row_offset = (i // 3) * 3
+            col_offset = (i % 3) * 3
+            subsquare = self.current_puzzle.data[row_offset:row_offset + 3, col_offset:col_offset + 3]
+            score += len(digits - set(subsquare.flatten()))
+
+        return score
+
+    def display_solution(self):
+        """Displays current solution"""
+        for rows in self.current_puzzle.data:
+            for elem in rows:
+                print(elem, end=" ")
+            print()
 
     def simulated_annealing(self):
         """Tries to solve the sudoku puzzle with simulated annealing process
@@ -48,13 +77,6 @@ class SudokuSolver(object):
         of iterations is exceeded.
         """
         pass
-
-    def display_solution(self):
-        """Displays current solution"""
-        for rows in self.current_puzzle.data:
-            for elem in rows:
-                print(elem, end=" ")
-            print()
 
 
 if __name__ == "__main__":

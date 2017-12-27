@@ -1,5 +1,6 @@
 from random import shuffle, randint, sample
 
+
 class Sudoku(object):
     def __init__(self, data):
         """Sudoku constructor
@@ -19,7 +20,10 @@ class Sudoku(object):
             [[index for index, elem in enumerate(row) if elem == 0] for row in self.data]
 
     def generate_initial_solution(self):
-        """Fills empty squares with random numbers"""
+        """Fills empty squares with numbers
+
+        Numbers are randomly assigned to blank spaces in a way that
+        in every row there is no repeated digits"""
         digits = set(range(1, 10))
         for i, _ in enumerate(self.data):
             digits_to_insert = list(digits - set(self.data[i]))  # list of missing digits
@@ -34,17 +38,8 @@ class Sudoku(object):
             if len(self.blank_spots_indices[row_index]) >= 2:  # Choose row with at least 2 blank spots
                 break
         indices_to_swap = sample(self.blank_spots_indices[row_index], 2)    # Pick 2 blank spots
-        a, b = self.data[row_index,indices_to_swap]
+        a, b = self.data[row_index, indices_to_swap]
         self.data[row_index, indices_to_swap] = b, a                        # Swap them
         print(row_index, indices_to_swap)
-
-    def evaluate_solution(self):
-        """Calculates and returns value of fitness function
-
-        Returned value tells how far is current solution from
-        a correct one by counting digit repetitions in each
-        row, column and 3x3 subsquare
-        """
-        pass
 
 
