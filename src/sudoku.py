@@ -1,4 +1,4 @@
-from random import shuffle
+from random import shuffle, randint, sample
 
 class Sudoku(object):
     def __init__(self, data):
@@ -29,7 +29,14 @@ class Sudoku(object):
 
     def generate_neighbor_solution(self):
         """Generates new solution by swapping digits in two initially empty squares"""
-        pass
+        while True:
+            row_index = randint(0, 8)
+            if len(self.blank_spots_indices[row_index]) >= 2:  # Choose row with at least 2 blank spots
+                break
+        indices_to_swap = sample(self.blank_spots_indices[row_index], 2)    # Pick 2 blank spots
+        a, b = self.data[row_index,indices_to_swap]
+        self.data[row_index, indices_to_swap] = b, a                        # Swap them
+        print(row_index, indices_to_swap)
 
     def evaluate_solution(self):
         """Calculates and returns value of fitness function

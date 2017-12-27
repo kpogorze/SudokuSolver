@@ -22,6 +22,9 @@ class SudokuSolver(object):
         self.current_puzzle.generate_initial_solution()
         print()
         self.display_solution()
+        self.current_puzzle.generate_neighbor_solution()
+        print()
+        self.display_solution()
         # self.simulated_annealing()
 
     def load_data_from_file(self, puzzle_filename):
