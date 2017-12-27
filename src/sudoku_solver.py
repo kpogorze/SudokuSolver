@@ -19,6 +19,9 @@ class SudokuSolver(object):
         self.iterations = iterations
         self.current_puzzle = Sudoku(self.load_data_from_file(puzzle_filename))
         self.display_solution()
+        self.current_puzzle.generate_initial_solution()
+        print()
+        self.display_solution()
         # self.simulated_annealing()
 
     def load_data_from_file(self, puzzle_filename):
