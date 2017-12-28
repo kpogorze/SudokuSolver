@@ -40,6 +40,23 @@ class Sudoku(object):
         indices_to_swap = sample(self.blank_spots_indices[row_index], 2)    # Pick 2 blank spots
         a, b = self.data[row_index, indices_to_swap]
         self.data[row_index, indices_to_swap] = b, a                        # Swap them
-        print(row_index, indices_to_swap)
 
+    def evaluate_solution(self):
+        """Calculates and returns value of fitness function for current solution
 
+        Returned value tells how far is current solution from a correct one by
+        counting digit repetitions in each column and 3x3 subsquares
+        (rows are omitted because of solution generation rules)
+        """
+        score = 0
+        digits = set(range(1, 10))
+        for i in range(9):
+            col = [row[i] for row in self.data]
+            score += len(digits - set(col))
+
+            row_offset = (i // 3) * 3
+            col_offset = (i % 3) * 3
+            subsquare = self.data[row_offset:row_offset + 3, col_offset:col_offset + 3]
+            score += len(digits - set(subsquare.flatten()))
+
+        return score

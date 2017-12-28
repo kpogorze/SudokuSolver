@@ -1,5 +1,7 @@
-import sys
 import numpy as np
+from copy import deepcopy
+from random import random
+from math import exp
 from src.sudoku import Sudoku
 
 
@@ -17,17 +19,8 @@ class SudokuSolver(object):
         self.temperature = init_temp
         self.cooldown = cooldown
         self.iterations = iterations
-        self.current_puzzle = Sudoku(self.load_data_from_file(puzzle_filename))
-        self.display_solution()
-        self.current_puzzle.generate_initial_solution()
-        print()
-        self.display_solution()
-        print(self.evaluate_solution())
-        self.current_puzzle.generate_neighbor_solution()
-        print()
-        self.display_solution()
-        print(self.evaluate_solution())
-        # self.simulated_annealing()
+        self.current_solution = Sudoku(self.load_data_from_file(puzzle_filename))
+        self.simulated_annealing()
 
     def load_data_from_file(self, puzzle_filename):
         """Loads puzzle data from file"""
@@ -36,29 +29,9 @@ class SudokuSolver(object):
         data = np.reshape(data, (9, 9))
         return data
 
-    def evaluate_solution(self):
-        """Calculates and returns value of fitness function for current solution
-
-        Returned value tells how far is current solution from a correct one by
-        counting digit repetitions in each column and 3x3 subsquares
-        (rows are omitted because of solution generation rules)
-        """
-        score = 0
-        digits = set(range(1, 10))
-        for i in range(9):
-            col = [row[i] for row in self.current_puzzle.data]
-            score += len(digits - set(col))
-
-            row_offset = (i // 3) * 3
-            col_offset = (i % 3) * 3
-            subsquare = self.current_puzzle.data[row_offset:row_offset + 3, col_offset:col_offset + 3]
-            score += len(digits - set(subsquare.flatten()))
-
-        return score
-
     def display_solution(self):
         """Displays current solution"""
-        for rows in self.current_puzzle.data:
+        for rows in self.current_solution.data:
             for elem in rows:
                 print(elem, end=" ")
             print()
@@ -76,11 +49,37 @@ class SudokuSolver(object):
         Algorithm goes on until correct solution is found or maximum number
         of iterations is exceeded.
         """
-        pass
+        self.display_solution()
+
+        self.current_solution.generate_initial_solution()
+        i = 0
+        while i < self.iterations:
+            next_solution = deepcopy(self.current_solution)
+            next_solution.generate_neighbor_solution()
+            current_score = self.current_solution.evaluate_solution()
+            candidate_score = next_solution.evaluate_solution()
+            if candidate_score < current_score:
+                self.current_solution = next_solution
+            elif exp((float(current_score - candidate_score) / self.temperature)) - random() > 0:
+                self.current_solution = next_solution
+            if candidate_score == 0:
+                print("PUZZLE SOLVED")
+                print("Solution:")
+                self.display_solution()
+                return
+            self.temperature = self.temperature * self.cooldown
+            i += 1
+            if i % 1000 == 0:
+                print(i, current_score, self.temperature)
+
+        print("PUZZLE NOT SOLVED")
+        print("Numbers of errors in solution:", self.current_solution.evaluate_solution())
+        print("Last solution:")
+        self.display_solution()
 
 
 if __name__ == "__main__":
-    SudokuSolver("../resources/puzzle1.txt")
+    SudokuSolver("../resources/puzzle2.txt")
     """
     if len(sys.argv) > 1:
         SudokuSolver(sys.argv[1])
