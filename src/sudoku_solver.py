@@ -6,7 +6,7 @@ from src.sudoku import Sudoku
 
 
 class SudokuSolver(object):
-    def __init__(self, puzzle_filename, init_temp=1, cooldown=.9999, iterations=100000, minTemp = 0.01):
+    def __init__(self, puzzle_filename, init_temp=1, cooldown=.9999, minTemp = 0.01):
         """SudokuSolver constructor
 
         Attributes:
@@ -19,7 +19,6 @@ class SudokuSolver(object):
         self.temperature = init_temp
         self.minTemp = minTemp
         self.cooldown = cooldown
-        self.iterations = iterations
         self.current_solution = Sudoku(self.load_data_from_file(puzzle_filename))
 
     def load_data_from_file(self, puzzle_filename):
@@ -98,13 +97,25 @@ if __name__ == "__main__":
             '3': "hard"
         }.get(level, "s10a")
 
+    init_temp = 1
+    min_temp = 0.01
+    cooldown = 0.9999
+
     while(1):
         sudoku_file_name = "../resources/" + get_puzzle_filename() + ".txt"
         nr_of_tests = int(input("Number of tests: "))
+        init_temp_input = input("Initial temperature: ")
+        mini_temp_input = input("Minimal temperature: ")
+        cooldown_input = input("Cooldown: ")
+        if init_temp_input.isdigit():
+            init_temp = int(init_temp_input)
+        if mini_temp_input.isdecimal():
+            min_temp = int(mini_temp_input)
+        if cooldown_input.isdecimal():
+            cooldown = int(cooldown_input)
         nr_of_correct_solutions = 0
-
         for i in range(nr_of_tests):
-            solver = SudokuSolver(sudoku_file_name)
+            solver = SudokuSolver(sudoku_file_name, init_temp, cooldown, min_temp)
             if solver.simulated_annealing():
                 nr_of_correct_solutions += 1
         print("Nr of solved puzzles:" + str(nr_of_correct_solutions))
