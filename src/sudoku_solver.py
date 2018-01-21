@@ -6,7 +6,7 @@ from src.sudoku import Sudoku
 
 
 class SudokuSolver(object):
-    def __init__(self, puzzle_filename, init_temp=1, cooldown=.9999, iterations=100000):
+    def __init__(self, puzzle_filename, init_temp=1, cooldown=.9999, iterations=100000, minTemp = 0.01):
         """SudokuSolver constructor
 
         Attributes:
@@ -17,10 +17,10 @@ class SudokuSolver(object):
                           iterations
         """
         self.temperature = init_temp
+        self.minTemp = minTemp
         self.cooldown = cooldown
         self.iterations = iterations
         self.current_solution = Sudoku(self.load_data_from_file(puzzle_filename))
-        self.simulated_annealing()
 
     def load_data_from_file(self, puzzle_filename):
         """Loads puzzle data from file"""
@@ -31,10 +31,16 @@ class SudokuSolver(object):
 
     def display_solution(self):
         """Displays current solution"""
-        for rows in self.current_solution.data:
-            for elem in rows:
-                print(elem, end=" ")
-            print()
+        def notzero(s):
+            if s != 0: return str(s)
+            if s == 0: return "_"
+        solution = ""
+        for i, row in enumerate(self.current_solution.data):
+            if i%3 == 0:
+                solution += "-"*25+'\n'
+            solution += "| " + " | ".join([" ".join(notzero(s) for s in row[3*(k-1):3*k]) for k in range(1,4)]) + " |\n"
+        solution += "-" * 25 + '\n'
+        print(solution)
 
     def simulated_annealing(self):
         """Tries to solve the sudoku puzzle with simulated annealing process
@@ -49,11 +55,12 @@ class SudokuSolver(object):
         Algorithm goes on until correct solution is found or maximum number
         of iterations is exceeded.
         """
+        print("\nINITIAL PUZZLE:")
         self.display_solution()
 
         self.current_solution.generate_initial_solution()
         i = 0
-        while i < self.iterations:
+        while (self.temperature > self.minTemp):
             next_solution = deepcopy(self.current_solution)
             next_solution.generate_neighbor_solution()
             current_score = self.current_solution.evaluate_solution()
@@ -63,27 +70,41 @@ class SudokuSolver(object):
             elif exp((float(current_score - candidate_score) / self.temperature)) - random() > 0:
                 self.current_solution = next_solution
             if candidate_score == 0:
-                print("PUZZLE SOLVED")
+                print("\nPUZZLE SOLVED")
                 print("Solution:")
+                print("Iteration %s,    Current Score: %s,  Temperature: %.5f"%(i, current_score, self.temperature))
                 self.display_solution()
-                return
+                return True
             self.temperature = self.temperature * self.cooldown
             i += 1
             if i % 1000 == 0:
-                print(i, current_score, self.temperature)
-
+                print("Iteration %s,    Current Score: %s,  Temperature: %.5f"%(i, current_score, self.temperature))
         print("PUZZLE NOT SOLVED")
         print("Numbers of errors in solution:", self.current_solution.evaluate_solution())
         print("Last solution:")
         self.display_solution()
-
+        return False
 
 if __name__ == "__main__":
-    SudokuSolver("../resources/puzzle2.txt")
-    """
-    if len(sys.argv) > 1:
-        SudokuSolver(sys.argv[1])
-    else:
-        filename = input("Podaj nazwe pliku")
-        SudokuSolver(filename)
-        """
+    def get_puzzle_filename():
+        print("\n Choose sudoku level:")
+        print("1. Easy")
+        print("2. Medium")
+        print("3. Hard")
+        level = input()
+        return {
+            '1': "easy",
+            '2': "medium",
+            '3': "hard"
+        }.get(level, "s10a")
+
+    while(1):
+        sudoku_file_name = "../resources/" + get_puzzle_filename() + ".txt"
+        nr_of_tests = int(input("Number of tests: "))
+        nr_of_correct_solutions = 0
+
+        for i in range(nr_of_tests):
+            solver = SudokuSolver(sudoku_file_name)
+            if solver.simulated_annealing():
+                nr_of_correct_solutions += 1
+        print("Nr of solved puzzles:" + str(nr_of_correct_solutions))
