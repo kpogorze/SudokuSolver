@@ -97,6 +97,17 @@ if __name__ == "__main__":
             '3': "hard"
         }.get(level, "s10a")
 
+
+    def is_number(s):
+        try:
+            float(s)  # for int, long and float
+        except ValueError:
+            try:
+                complex(s)  # for complex
+            except ValueError:
+                return False
+        return True
+
     init_temp = 1
     min_temp = 0.01
     cooldown = 0.9999
@@ -109,10 +120,10 @@ if __name__ == "__main__":
         cooldown_input = input("Cooldown: ")
         if init_temp_input.isdigit():
             init_temp = int(init_temp_input)
-        if mini_temp_input.isdecimal():
-            min_temp = int(mini_temp_input)
-        if cooldown_input.isdecimal():
-            cooldown = int(cooldown_input)
+        if is_number(mini_temp_input):
+            min_temp = float(mini_temp_input)
+        if is_number(cooldown_input):
+            cooldown = float(cooldown_input)
         nr_of_correct_solutions = 0
         for i in range(nr_of_tests):
             solver = SudokuSolver(sudoku_file_name, init_temp, cooldown, min_temp)
